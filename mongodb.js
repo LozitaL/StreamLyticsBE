@@ -1,6 +1,5 @@
 import getConnection from './db/conMongoDB.js';
 
-//Establece la conexión a la base de datos MongoDB y define las funciones para interactuar con la colección de users
 const getUsers = async () => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
@@ -12,6 +11,51 @@ const addUser = async (user) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
     const result = await db.collection('users').insertOne(user);
+    const profile = {
+        username: result.username,
+        profiles: result.username,
+        Friends: [
+            {}
+        ],
+        description: 'Añada una descripcion para su perfil',
+        photo_profile: '',
+        banner_profile: '',
+        collections: [
+            {
+                name: '',
+                type: '',
+                description: '',
+                items: [
+                    { title: '', url: '', date: null },
+                    { title: '', url: '', date: null }
+                ]
+            },
+            {
+                name: '',
+                type: 'collection_finished',
+                description: '',
+                items: [
+                    { title: '', url: '', date: null },
+                ]
+            },
+            {
+                name: '',
+                type: 'collection_unfinished',
+                description: '',
+                items: [
+                    { title: '', url: '', date: null },
+                ]
+            },
+            {
+                name: '',
+                type: 'personal',
+                description: '',
+                items: [
+                    { title: '', url: '', date: null },
+                ]
+            }
+        ],
+    }
     return result;
 }
 
@@ -139,6 +183,7 @@ const addProfile = async (profile) => {
     const db = client.db('StreamLytics');
     const result = await db.collection('profiles').insertOne(profile);
     return result;
+
 };
 const deleteProfile = async (username) => {
     const client = await getConnection();
@@ -196,7 +241,7 @@ let profile = {
             description: 'Collection of admin resources',
             items: [
                 { title: 'Favorite Article', url: 'https://example.com/favorite_article.html', date: new Date() },
-                { title: 'Favorite Video', url: 'https://example.com/favorite_video.mp4', date: new Date()   }
+                { title: 'Favorite Video', url: 'https://example.com/favorite_video.mp4', date: new Date() }
             ]
         },
         {
@@ -214,7 +259,7 @@ let profile = {
             description: 'Liked items by admin',
             items: [
                 { title: 'Liked Article', url: 'https://example.com/liked_article.html', date: new Date() },
-                { title: 'Liked Video', url: 'https://example.com/liked_video.mp4', date: new Date()   }
+                { title: 'Liked Video', url: 'https://example.com/liked_video.mp4', date: new Date() }
             ]
         }
     ],
@@ -231,11 +276,11 @@ const addComment = async (comment) => {
     const db = client.db('StreamLytics');
     const result = await db.collection('comments').insertOne(comment);
     return result;
-};  
-const deleteComment = async (username,movie) => {
+};
+const deleteComment = async (username, movie) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
-    const result = await db.collection('comments').deleteOne({ username,movie });
+    const result = await db.collection('comments').deleteOne({ username, movie });
     return result;
 };
 const updateComment = async (username, updatedData) => {
@@ -304,6 +349,7 @@ export {
     addComment,
     deleteComment,
     updateComment,
+    getCommentByUsername,
     getopinions,
     getopinionsByMovie,
     getopinionsbyseries,

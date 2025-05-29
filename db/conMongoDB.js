@@ -1,7 +1,7 @@
 import { MongoClient } from 'mongodb';
 import 'dotenv/config';
 
-const uri = process.env.MONGO_URI; // Usa variable de entorno
+const uri = process.env.MONGO_URI;
 
 let client;
 
