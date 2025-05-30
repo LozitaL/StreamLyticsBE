@@ -12,51 +12,20 @@ const addUser = async (user) => {
     const db = client.db('StreamLytics');
     const result = await db.collection('users').insertOne(user);
     const profile = {
-        username: result.username,
-        profiles: result.username,
-        Friends: [
-            {}
-        ],
-        description: 'Añada una descripcion para su perfil',
-        photo_profile: '',
-        banner_profile: '',
+        username: user.username,
+        profiles: user.username,
+        Friends: [],
+        description: 'Añade una descripcion para su perfil',
+        photo_profile: 'images/defaultprf.png',
+        banner_profile: 'images/defaultbanner.png',
         collections: [
-            {
-                name: '',
-                type: '',
-                description: '',
-                items: [
-                    { title: '', url: '', date: null },
-                    { title: '', url: '', date: null }
-                ]
-            },
-            {
-                name: '',
-                type: 'collection_finished',
-                description: '',
-                items: [
-                    { title: '', url: '', date: null },
-                ]
-            },
-            {
-                name: '',
-                type: 'collection_unfinished',
-                description: '',
-                items: [
-                    { title: '', url: '', date: null },
-                ]
-            },
-            {
-                name: '',
-                type: 'personal',
-                description: '',
-                items: [
-                    { title: '', url: '', date: null },
-                ]
-            }
-        ],
+        ]
+    };
+    const profileResult = await db.collection('profiles').insertOne(profile);
+    if (!profileResult.acknowledged) {
+        throw new Error('Error al crear el perfil del usuario');
     }
-    return result;
+    return result + profileResult;
 }
 
 const deleteUser = async (username) => {
