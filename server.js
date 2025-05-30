@@ -42,9 +42,9 @@ app.get('/api/movies/search', async (req, res) => {
         const response = await fetch(url);
         const data = await response.json();
         let results = data.results;
-        
+
         if (genre) {
-            const genreId = Number(genre); 
+            const genreId = Number(genre);
             results = results.filter(movie => movie.genre_ids.includes(genreId));
         }
         res.json(results);
@@ -69,7 +69,7 @@ app.get('/api/movies/:id/videos', async (req, res) => {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        res.json(data.results); // Aquí vienen los videos, busca el que sea type: "Trailer"
+        res.json(data.results);
     } catch (error) {
         res.status(500).json({ error: 'Error obteniendo videos de la película' });
     }
@@ -80,7 +80,7 @@ app.get('/api/movies/:id/providers', async (req, res) => {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        res.json(data.results); // Aquí tienes los proveedores por país
+        res.json(data.results);
     } catch (error) {
         res.status(500).json({ error: 'Error obteniendo proveedores de la película' });
     }
@@ -108,7 +108,7 @@ app.get('/api/series/popular/:count', async (req, res) => {
         res.status(500).json({ error: 'Error obteniendo series' });
     }
 });
-app.get('/api/series/search', async (req, res) => {
+app.get('/api/seriess/search', async (req, res) => {
     const { name, year, genre, country } = req.query;
     let url = `https://api.themoviedb.org/3/search/tv?api_key=${api_key}&language=es-ES&query=${encodeURIComponent(name || '')}`;
 
@@ -119,9 +119,9 @@ app.get('/api/series/search', async (req, res) => {
         const response = await fetch(url);
         const data = await response.json();
         let results = data.results;
-        // Filtrar por género si se especifica
+
         if (genre) {
-            const genreId = Number(genre); // Debes pasar el ID del género, no el nombre
+            const genreId = Number(genre);
             results = results.filter(serie => serie.genre_ids.includes(genreId));
         }
         res.json(results);
@@ -135,7 +135,7 @@ app.get('/api/series/:id/videos', async (req, res) => {
     try {
         const response = await fetch(url);
         const data = await response.json();
-        res.json(data.results); 
+        res.json(data.results);
     } catch (error) {
         res.status(500).json({ error: 'Error obteniendo videos de la serie' });
     }
@@ -188,7 +188,7 @@ app.post('/api/login', async (req, res) => {
     const { password: _, ...userData } = user;
     res.json({ token, user: userData });
 });
-app.get('/api/user/:username',verifyToken, async (req, res) => res.json(await getUserByUsername(req.params.username)));
+app.get('/api/user/:username', verifyToken, async (req, res) => res.json(await getUserByUsername(req.params.username)));
 app.get('/api/user/email/:email', verifyToken, async (req, res) => res.json(await getUserByEmail(req.params.email)));
 app.delete('/api/user/:username', verifyToken, async (req, res) => res.json(await deleteUser(req.params.username)));
 app.put('/api/user/:username', verifyToken, async (req, res) => res.json(await updateUser(req.params.username, req.body)));
@@ -204,7 +204,7 @@ app.get('/api/opinions/series/:series', verifyToken, async (req, res) => res.jso
 app.get('/api/opinions/rate/:rate', verifyToken, async (req, res) => res.json(await getopinionsByRate(Number(req.params.rate))));
 
 // Perfiles
-app.get('/api/profiles',verifyToken, async (req, res) => res.json(await getProfiles()));
+app.get('/api/profiles', verifyToken, async (req, res) => res.json(await getProfiles()));
 app.post('/api/profile', verifyToken, async (req, res) => res.json(await addProfile(req.body)));
 app.get('/api/profile/:username', verifyToken, async (req, res) => res.json(await getProfileByUsername(req.params.username)));
 app.delete('/api/profile/:username', verifyToken, async (req, res) => res.json(await deleteProfile(req.params.username)));
