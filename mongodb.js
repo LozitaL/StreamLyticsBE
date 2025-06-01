@@ -246,17 +246,17 @@ const addComment = async (comment) => {
     const result = await db.collection('comments').insertOne(comment);
     return result;
 };
-const deleteComment = async (username, movie) => {
+const deleteComment = async (id) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
-    const result = await db.collection('comments').deleteOne({ username, movie });
+    const result = await db.collection('comments').deleteOne({ _id: id });
     return result;
 };
-const updateComment = async (username, updatedData) => {
+const updateComment = async (commentId, updatedData) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
     const result = await db.collection('comments').updateOne(
-        { username },
+        { _id: commentId },
         { $set: updatedData }
     );
     return result;

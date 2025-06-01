@@ -33,23 +33,55 @@ app.get('/api/movies/popular/:count', async (req, res) => {
 });
 app.get('/api/movies/search', async (req, res) => {
     const { name, year, genre, country } = req.query;
-    let url = `https://api.themoviedb.org/3/search/movie?api_key=${api_key}&language=es-ES&query=${encodeURIComponent(name || '')}`;
 
-    if (year) url += `&year=${year}`;
-    if (country) url += `&region=${country}`;
+    let url;
+    
+    if (name) {
+        url = `https://api.themoviedb.org/3/search/movie?api_key=${api_key}&language=es-ES&query=${encodeURIComponent(name)}`;
+        if (year) url += `&year=${year}`;
+        if (country) url += `&region=${country}`;
+    } else {
+        url = `https://api.themoviedb.org/3/discover/movie?api_key=${api_key}&language=es-ES&sort_by=popularity.desc`;
+
+        if (year) url += `&primary_release_year=${year}`;
+        if (country) url += `&with_origin_country=${country}`;
+        if (genre) url += `&with_genres=${genre}`;
+    }
 
     try {
         const response = await fetch(url);
         const data = await response.json();
         let results = data.results;
 
-        if (genre) {
+        if (genre && name) {
             const genreId = Number(genre);
             results = results.filter(movie => movie.genre_ids.includes(genreId));
         }
+
         res.json(results);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error buscando películas' });
+    }
+});
+app.get('/api/movies/genres', async (req, res) => {
+    const url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${api_key}&language=es-ES`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        res.json(data.genres);
+    } catch (error) {
+        res.status(500).json({ error: 'Error obteniendo géneros de películas' });
+    }
+});
+app.get('/api/series/genres', async (req, res) => {
+    const url = `https://api.themoviedb.org/3/genre/tv/list?api_key=${api_key}&language=es-ES`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        res.json(data.genres);
+    } catch (error) {
+        res.status(500).json({ error: 'Error obteniendo géneros de series' });
     }
 });
 app.get('/api/movies/:id', async (req, res) => {
@@ -98,7 +130,7 @@ app.get('/api/series/:id', async (req, res) => {
 });
 app.get('/api/series/popular/:count', async (req, res) => {
     const count = parseInt(req.params.count, 10) || 10;
-    const url = `https://api.themoviedb.org/3/tv/popular?api_key=${api_key}&language=es-ES&page=1`;
+    const url = `https://api.themoviedb.org/3/tv/popular?api_key=${api_key}&language=es-ES&page=2`;
 
     try {
         const response = await fetch(url);
@@ -110,25 +142,38 @@ app.get('/api/series/popular/:count', async (req, res) => {
 });
 app.get('/api/seriess/search', async (req, res) => {
     const { name, year, genre, country } = req.query;
-    let url = `https://api.themoviedb.org/3/search/tv?api_key=${api_key}&language=es-ES&query=${encodeURIComponent(name || '')}`;
 
-    if (year) url += `&first_air_date_year=${year}`;
-    if (country) url += `&region=${country}`;
+    let url;
+
+    if (name) {
+        url = `https://api.themoviedb.org/3/search/tv?api_key=${api_key}&language=es-ES&query=${encodeURIComponent(name)}`;
+        if (year) url += `&first_air_date_year=${year}`;
+        if (country) url += `&region=${country}`;
+    } else {
+        url = `https://api.themoviedb.org/3/discover/tv?api_key=${api_key}&language=es-ES&sort_by=popularity.desc`;
+        if (year) url += `&first_air_date_year=${year}`;
+        if (country) url += `&with_origin_country=${country}`;
+        if (genre) url += `&with_genres=${genre}`;
+    }
 
     try {
         const response = await fetch(url);
         const data = await response.json();
         let results = data.results;
 
-        if (genre) {
+        if (genre && name) {
             const genreId = Number(genre);
             results = results.filter(serie => serie.genre_ids.includes(genreId));
         }
+        console.log('API URL:', url);
+        console.log('Response status:', response.status);
         res.json(results);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Error buscando series' });
     }
 });
+
 app.get('/api/series/:id/videos', async (req, res) => {
     const { id } = req.params;
     const url = `https://api.themoviedb.org/3/tv/${id}/videos?api_key=${api_key}&language=es-ES`;
@@ -151,6 +196,7 @@ app.get('/api/series/:id/providers', async (req, res) => {
         res.status(500).json({ error: 'Error obteniendo proveedores de la serie' });
     }
 });
+
 //propia
 // Usuarios
 app.get('/api/users', verifyToken, async (req, res) => res.json(await getUsers()));
@@ -213,9 +259,26 @@ app.put('/api/profile/:username', verifyToken, async (req, res) => res.json(awai
 // Comentarios
 app.get('/api/comments', verifyToken, async (req, res) => res.json(await getComments()));
 app.post('/api/comment', verifyToken, async (req, res) => res.json(await addComment(req.body)));
+app.put('/api/commentt/:id', async (req, res) => {
+  try {
+    const commentId = req.params.id;
+    const updatedData = req.body;
+
+    const result = await updateComment(commentId, updatedData);
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ message: 'Comentario no encontrado o sin cambios.' });
+    }
+
+    res.json({ message: 'Comentario actualizado correctamente.' });
+  } catch (err) {           
+    console.error('Error al actualizar comentario:', err);
+    res.status(500).json({ message: 'Error interno al actualizar el comentario.' });
+  }
+});
 app.get('/api/comment/:username', verifyToken, async (req, res) => res.json(await getCommentByUsername(req.params.username)));
-app.delete('/api/comment/:username/:movie', verifyToken, async (req, res) => res.json(await deleteComment(req.params.username, req.params.movie)));
-app.put('/api/comment/:username', verifyToken, async (req, res) => res.json(await updateComment(req.params.username, req.body)));
+app.delete('/api/comment/:id', verifyToken, async (req, res) => res.json(await deleteComment(req.params.id)));
+app.put('/api/comment/:id', verifyToken, async (req, res) => res.json(await updateComment(req.params.id, req.body)));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Servidor escuchando en puerto ${PORT}`));
