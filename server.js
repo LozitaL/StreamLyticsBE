@@ -3,6 +3,7 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import { generateToken, verifyToken } from './auth.js';
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
 import {
     getUsers, addUser, deleteUser, updateUser, getUserByUsername, getUserByEmail,
     addOpinion, deleteOpinion, updateOpinion, getopinionByUsername,
