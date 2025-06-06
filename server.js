@@ -277,7 +277,28 @@ app.put('/api/commentt/:id', async (req, res) => {
   }
 });
 app.get('/api/comment/:username', verifyToken, async (req, res) => res.json(await getCommentByUsername(req.params.username)));
-app.delete('/api/comment/:id', verifyToken, async (req, res) => res.json(await deleteComment(req.params.id)));
+
+
+app.delete('/api/comments/:id', verifyToken, async (req, res) => {
+    try {
+        if (!ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ error: 'ID de comentario no válido' });
+        }
+
+        const result = await deleteComment(req.params.id);
+        console.log('Resultado de deleteComment:', result);
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ error: 'Comentario no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Comentario eliminado correctamente' });
+    } catch (err) {
+        console.error('Error al eliminar comentario:', err);
+        res.status(500).json({ error: 'Error interno al eliminar el comentario' });
+    }
+});
+
 app.put('/api/comment/:id', verifyToken, async (req, res) => res.json(await updateComment(req.params.id, req.body)));
 
 const PORT = process.env.PORT || 3000;
