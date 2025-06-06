@@ -18,7 +18,7 @@ const api_key = process.env.TMDB_API_KEY;
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 //Peliculas y Series
 app.get('/api/movies/popular/:count', async (req, res) => {
     const count = parseInt(req.params.count, 10) || 10;

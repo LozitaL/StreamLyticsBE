@@ -164,10 +164,16 @@ const deleteProfile = async (username) => {
 const updateProfile = async (username, updatedData) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
+
     const result = await db.collection('profiles').updateOne(
         { username },
         { $set: updatedData }
     );
+
+    if (result.matchedCount === 0) {
+        throw new Error(`No se encontró el perfil con username: ${username}`);
+    }
+
     return result;
 };
 const getProfileByUsername = async (username) => {
