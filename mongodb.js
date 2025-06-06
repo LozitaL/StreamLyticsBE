@@ -1,4 +1,5 @@
 import getConnection from './db/conMongoDB.js';
+import { ObjectId } from 'mongodb';
 
 const getUsers = async () => {
     const client = await getConnection();
@@ -246,7 +247,7 @@ const addComment = async (comment) => {
     const result = await db.collection('comments').insertOne(comment);
     return result;
 };
-import { ObjectId } from 'mongodb';
+
 const deleteComment = async (id) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
