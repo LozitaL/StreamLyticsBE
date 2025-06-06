@@ -164,7 +164,9 @@ const deleteProfile = async (username) => {
 const updateProfile = async (username, updatedData) => {
     const client = await getConnection();
     const db = client.db('StreamLytics');
-
+    if (updatedData._id) {
+    delete updatedData._id;
+    } 
     const result = await db.collection('profiles').updateOne(
         { username },
         { $set: updatedData }
